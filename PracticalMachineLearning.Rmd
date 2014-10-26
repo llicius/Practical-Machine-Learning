@@ -33,7 +33,7 @@ training_data <- read.csv("pml-training.csv", na.strings=c("#DIV/0!") )
 evaluation_data <- read.csv("pml-testing.csv", na.strings=c("#DIV/0!") )
 ```
 
-I also casted all columns 8 to the end to be numeric.
+All columns 8 were converted to numeric
 
 ```{r, echo=FALSE}
 for(i in c(8:ncol(training_data)-1)) {training_data[,i] = as.numeric(as.character(training_data[,i]))}
@@ -42,9 +42,7 @@ for(i in c(8:ncol(evaluation_data)-1)) {evaluation_data[,i] = as.numeric(as.char
 
 ```
 
-Some columns were mostly blank. These did not contribute well to the prediction. I chose a feature set that only included complete columns. We also remove user name, timestamps and windows.
-
-Determine and display out feature set.
+Because some columns were mostly blank, this did not contribute to the prediction. I chose a feature set that only included complete columns.
 
 ```{r}
 feature_set <- colnames(training_data[colSums(is.na(training_data)) == 0])[-(1:7)]
@@ -61,7 +59,7 @@ testing <- model_data[-idx,]
 
 ```
 
-We now build 5 random forests with 150 trees each. We make use of parallel processing to build this model. I found several examples of how to perform parallel processing with random forests in R, this provided a great speedup.
+5 random forests with 150 trees each werebuilt. Parallel processing was used to build this model.
 
 ```{r}
 registerDoParallel()
@@ -86,9 +84,7 @@ confusionMatrix(predictions2,testing$classe)
 
 ```
 
-Conclusions
------------
-As can be seen from the confusion matrix this model is very accurate. I did experiment with PCA and other models, but did not get as good of accuracy. Because my test data was around 99% accurate I expected nearly all of the submitted test cases to be correct. It turned out they were all correct.
+
 
 Prepare the submission. (using COURSERA provided code)
 ```{r}

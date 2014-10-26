@@ -99,9 +99,10 @@ library(doParallel)</code></pre>
 <pre class="r"><code>set.seed(2048)
 options(warn=-1)</code></pre>
 <p>The data was loaded for from the provided training and test data. Some values contained a “#DIV/0!” that I replaced with an NA value.</p>
-<p>I also casted all columns 8 to the end to be numeric.</p>
-<p>Some columns were mostly blank. These did not contribute well to the prediction. I chose a feature set that only included complete columns. We also remove user name, timestamps and windows.</p>
-<p>Determine and display out feature set.</p>
+<pre class="r"><code>training_data &lt;- read.csv(&quot;pml-training.csv&quot;, na.strings=c(&quot;#DIV/0!&quot;) )
+evaluation_data &lt;- read.csv(&quot;pml-testing.csv&quot;, na.strings=c(&quot;#DIV/0!&quot;) )</code></pre>
+<p>All columns 8 were converted to numeric</p>
+<p>Because some columns were mostly blank, this did not contribute to the prediction. I chose a feature set that only included complete columns.</p>
 <pre class="r"><code>feature_set &lt;- colnames(training_data[colSums(is.na(training_data)) == 0])[-(1:7)]
 model_data &lt;- training_data[feature_set]
 feature_set</code></pre>
@@ -127,7 +128,7 @@ feature_set</code></pre>
 <pre class="r"><code>idx &lt;- createDataPartition(y=model_data$classe, p=0.75, list=FALSE )
 training &lt;- model_data[idx,]
 testing &lt;- model_data[-idx,]</code></pre>
-<p>We now build 5 random forests with 150 trees each. We make use of parallel processing to build this model. I found several examples of how to perform parallel processing with random forests in R, this provided a great speedup.</p>
+<p>5 random forests with 150 trees each werebuilt. Parallel processing was used to build this model.</p>
 <pre class="r"><code>registerDoParallel()
 x &lt;- training[-ncol(training)]
 y &lt;- training$classe
@@ -175,11 +176,11 @@ confusionMatrix(predictions2,testing$classe)</code></pre>
 ## 
 ##           Reference
 ## Prediction    A    B    C    D    E
-##          A 1395    5    0    0    0
-##          B    0  941    6    0    0
+##          A 1395    4    0    0    0
+##          B    0  942    6    0    0
 ##          C    0    3  848    8    2
-##          D    0    0    1  796    1
-##          E    0    0    0    0  898
+##          D    0    0    1  796    2
+##          E    0    0    0    0  897
 ## 
 ## Overall Statistics
 ##                                         
@@ -194,18 +195,14 @@ confusionMatrix(predictions2,testing$classe)</code></pre>
 ## Statistics by Class:
 ## 
 ##                      Class: A Class: B Class: C Class: D Class: E
-## Sensitivity             1.000    0.992    0.992    0.990    0.997
-## Specificity             0.999    0.998    0.997    1.000    1.000
-## Pos Pred Value          0.996    0.994    0.985    0.997    1.000
+## Sensitivity             1.000    0.993    0.992    0.990    0.996
+## Specificity             0.999    0.998    0.997    0.999    1.000
+## Pos Pred Value          0.997    0.994    0.985    0.996    1.000
 ## Neg Pred Value          1.000    0.998    0.998    0.998    0.999
 ## Prevalence              0.284    0.194    0.174    0.164    0.184
 ## Detection Rate          0.284    0.192    0.173    0.162    0.183
 ## Detection Prevalence    0.285    0.193    0.176    0.163    0.183
-## Balanced Accuracy       0.999    0.995    0.994    0.995    0.998</code></pre>
-</div>
-<div id="conclusions" class="section level2">
-<h2>Conclusions</h2>
-<p>As can be seen from the confusion matrix this model is very accurate. I did experiment with PCA and other models, but did not get as good of accuracy. Because my test data was around 99% accurate I expected nearly all of the submitted test cases to be correct. It turned out they were all correct.</p>
+## Balanced Accuracy       0.999    0.996    0.994    0.995    0.998</code></pre>
 <p>Prepare the submission. (using COURSERA provided code)</p>
 <pre class="r"><code>pml_write_files = function(x){
   n = length(x)
